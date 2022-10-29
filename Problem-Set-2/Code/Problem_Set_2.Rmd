@@ -18,7 +18,7 @@ library(ggplot2)
 
 ## Pulling in the Data
 
-Given this is due oon halloween we will be working with halloween data! 
+Given this is due on Halloween we will be working with Halloween data! 
 
 ```{r}
 here() #See where R is looking
