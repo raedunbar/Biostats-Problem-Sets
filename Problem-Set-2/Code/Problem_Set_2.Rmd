@@ -24,6 +24,7 @@ Given this is due on Halloween we will be working with Halloween data!
 here() #See where R is looking
 halloween<- read.csv(here("Problem-Set-2", "Data for the code", "Halloween_data_PS2.csv"), stringsAsFactors = TRUE) 
 #I needed to first bring R into my Problem set 2 folder, since R was looking just in the project. 
+
 #Given we wanted both Costume and Type as factors and not as character, I did stringsAsFactors=TRUE to make them factor variables right away.
 ```
 
@@ -33,7 +34,7 @@ halloween<- read.csv(here("Problem-Set-2", "Data for the code", "Halloween_data_
 names(halloween) #shows column names
 ```
 
-All column names seem to spelled correctly, and there are no dots indicating unwanted spaces, so we can keep the column names. 
+All column names seem to be spelled correctly, and there are no dots indicating unwanted spaces, so we can keep the column names. 
 
 It looks like the data has four variables, the costume, Type, the number of candy pieces, and the age of what I presume is the costume wearer. To understand what "Type" means and see the spread of the data lets use summary:
 
@@ -45,18 +46,20 @@ summary(halloween) # provides a summary of the data
 levels(halloween$Type) #shows the choices available for the column.
 ```
 
-Now I see there is a space right after one of the 'scary' datum. So, we need to fix that to have the correct number of levels in that column. For the other two variables, the max number of candy peices being 16 is probably an outlier, given the mean is 2.9 and the third quartile is only 4. The age data look reasonable. Lets double check the possbility of an outlier by looking at more of the data with another.
+Now I see there is a space right after one of the 'scary' datum. So, we need to fix that to have the correct number of levels in that column. 
+
+For the other two variables, the max number of candy pieces being 16 is probably an outlier, given the mean is 2.9 and the third quartile is only 4. The age data look reasonable. Lets double check the possibility of an outlier by looking at more of the data with another.
 
 ```{r}
 tbl_df(halloween) # make a table of your data
 ```
-Aside from the wopping 16 candies, the biggest number is 6, making 16 an outlier. The age distribution is, as I aspected based on the mean, reasonable.There are 13 and 14 year old children, with the eldest being 15. It is feasible one child was particularly victorious with candy,  so we will leave the outlier in the data. Based on how it impacts the figures we may want to leave it out later. 
+Aside from the wopping 16 candies, the biggest number is 6, making 16 an outlier. The age distribution is, as I aspected based on the mean, reasonable.There are 13 and 14 year old children, with the eldest being 15. It is feasible one child was particularly greedy with grabbing candy,  so we will leave the outlier in the data. Based on how it impacts the figures we may want to leave it out later. 
 
 I noticed another issue however, some entries are spelled differently, so there are costumes that are the same, but R thinks they are different. 
 
 ## Fixing the Data
 
-the only issue that requires attention is fixing the factors in the Type column.
+The first issue that requires attention is fixing the factors in the Type column.
 ```{r}
 sfix<-which(halloween$Type== "Scary" | halloween$Type== "scary " )
 halloween$Type[sfix]<- "scary"
@@ -118,11 +121,11 @@ The zombie costume had the highest mean candy count taken at 6.86, though the ou
 ## Making Graphs
 
 ### Graph 1
-Use the mean data to make the first graph. You could combine the code from above (halloween %>% group_by(Costume, Type) %>% summarize(mean_candy=mean(candy_pieces, na.rm=TRUE), mean_age=mean(age, na.rm=TRUE))) into the data= portion of the code below, but then you would not be able to see the means in a another data frame, which I interpreted you wanted, so I left these as two separate code chunks.
+Use the mean data to make the first graph. 
+
+I could have combined the code from above (halloween %>% group_by(Costume, Type) %>% summarize(mean_candy=mean(candy_pieces, na.rm=TRUE), mean_age=mean(age, na.rm=TRUE))) into the data= portion of the code below, but then you would not be able to see the means in a another data frame, which I believe you wanted, so I left these as two separate code chunks.
 ```{r}
 ggplot(data=halloween_means, aes(x=mean_age, y=mean_candy, colour=Type)) + xlab("Mean age of kid (years)") + ylab("Mean number pieces taken")+ geom_point(size=3) + theme_bw()
-
-
 
 #use ggplot to layer a graph together first taking the data from the halloween_means table, make the x and y axis as noted and call them what is noted with xlab and ylab.Then add points, making the size 3, which seems the closest to the size you chose, and the theme of the graph black and white colored.  
 ```
@@ -133,22 +136,19 @@ There is a weak correlation between mean age of kids and number of candy they ta
 ### Graph 2
 Our task is to write code that isolates the data for children in “not scary” costumes who are 10years old or younger and use the resulting data to plot a histogram showing the number of kids in each age class and that comes as close as you can to replicating figure 2, below.
 
-We need to work with the origonal halloween data for this.
-```{r}
-histogram<-halloween %>% filter(halloween$Type=="Not scary" & halloween$age<=10)
-# take the halloween data and show only the data where the type is not scary and the child is 1o years or younger in a new dataframe called histogram. 
-```
-
+We need to work with the original Halloween data for this.
 Now we can plot this: 
 
 ```{r}
-ggplot(data=histogram, aes(x=age)) + xlab("Age of child") + ylab("Number") + geom_histogram(binwidth=2)
+ggplot(data=halloween %>% filter(halloween$Type=="Not scary" & halloween$age<=10), aes(x=age)) + xlab("Age of child") + ylab("Number") + geom_histogram(binwidth=2)
+
+# the data= part: take the halloween data and theen show only the data where the type is not scary and the child is 1o years or younger in a new dataframe called histogram. 
 ```
 Figure 2. Number of children age 10 and under wearing costumes that are not scary. 
 
 The peak of the histogram is at age 6. So most of the children wearing non scary costumes are around six years old, with fewer older children wearing scary costumes. This makes sense, as older children probably want to be scary at Halloween.
 
-The only feature I am missing on this histogram is the lines separating the different bars. 
+The only feature I am missing on this histogram is the lines separating the different bars. I tried alpha, but that is for transparency so it the grid lines show through, which is not the same as the lines you have on your histogram. 
 
 ### Graph 3
 
@@ -157,8 +157,8 @@ write code that replicates figure 3 below as closely as you can (Hint: try `coor
 ggplot(data=halloween, aes(x=Costume, y=age)) + ylab("Child age(years)") + xlab("Costume choice") + geom_boxplot() + geom_point(size=4, colour='lightgrey', alpha=0.6) + facet_wrap(~Type)+ coord_flip()
 #facet_wrap splits it into two figures side by side
 #geom_point() adds points to the data with the color being light grey and slightly see through using alpha. 
-#coord_fip switches around the x and y axis. Another option, is to just make x=age and y=Costume. 
+#coord_fip switches around the x and y axis. Another option, is to just make x=age and y=Costume right away. 
 ```
 Figure 3. Box and whisker plot showing the age distribution of children wearing different Halloween costume choices, separated according to whether the costume is scary or not. 
 
-We can see based on this figure that older children, approx. above 6 years old, tended to wear scary costumes, with the exception of one witch datum, and the wonder women data. Though, wonder women can be scary, given her strength and all. The correlation is again weak, a large sample size is needed. The box plot and points allow us to see the spread of the data. For instance, children dressed as zombies varied from 8-15, wherease creepy clown dressed children has a smaller spread of 12-14. 
+We can see based on this figure that older children, approx. above 6 years old, tended to wear scary costumes, with the exception of one witch datum, and the wonder women data. Though, wonder women can be scary, given her strength and all. The correlation is again weak, a large sample size is needed. The box plot and points allow us to see the spread of the data. For instance, children dressed as zombies varied from 8-15, whereas creepy clown dressed children has a smaller spread of 12-14. 
