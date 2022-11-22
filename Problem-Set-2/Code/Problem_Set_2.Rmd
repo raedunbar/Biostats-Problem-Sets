@@ -144,7 +144,11 @@ ggplot(data=halloween %>% filter(halloween$Type=="Not scary" & halloween$age<=10
 
 # the data= part: take the halloween data and theen show only the data where the type is not scary and the child is 1o years or younger in a new dataframe called histogram. 
 ```
+I really like that you just piped the data to include what you filtered right from within the ggplot. Fancy!
+
+
 Figure 2. Number of children age 10 and under wearing costumes that are not scary. 
+
 
 The peak of the histogram is at age 6. So most of the children wearing non scary costumes are around six years old, with fewer older children wearing scary costumes. This makes sense, as older children probably want to be scary at Halloween.
 
